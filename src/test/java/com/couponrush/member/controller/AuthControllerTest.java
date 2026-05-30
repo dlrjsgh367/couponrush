@@ -67,4 +67,13 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.data.accessToken").value("TOKEN"))
                 .andExpect(jsonPath("$.data.tokenType").value("Bearer"));
     }
+
+    @Test
+    void 로그아웃_성공시_200과_success를_반환한다() throws Exception {
+        mockMvc.perform(post("/api/auth/logout")
+                        .header("Authorization", "Bearer token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+        verify(authService).logout("Bearer token");
+    }
 }

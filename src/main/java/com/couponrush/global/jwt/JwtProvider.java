@@ -46,6 +46,11 @@ public class JwtProvider {
         return Long.valueOf(parseClaims(token).getSubject());
     }
 
+    public long getRemainingMillis(String token) {
+        Date expiration = parseClaims(token).getExpiration();
+        return expiration.getTime() - System.currentTimeMillis();
+    }
+
     private io.jsonwebtoken.Claims parseClaims(String token) {
         return Jwts.parser()
                 .verifyWith(key)

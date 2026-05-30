@@ -2,6 +2,7 @@ package com.couponrush.global.config;
 
 import com.couponrush.global.jwt.JwtAuthenticationFilter;
 import com.couponrush.global.jwt.JwtProvider;
+import com.couponrush.global.jwt.TokenBlacklistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
+    private final TokenBlacklistRepository tokenBlacklistRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -37,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/coupons/events").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider),
+                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, tokenBlacklistRepository),
                         UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

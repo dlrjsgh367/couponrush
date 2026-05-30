@@ -3,6 +3,7 @@ package com.couponrush.member.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import com.couponrush.global.error.BusinessException;
 import com.couponrush.global.error.ErrorCode;
 import com.couponrush.global.jwt.JwtProvider;
+import com.couponrush.global.jwt.TokenBlacklistRepository;
 import com.couponrush.member.domain.Member;
 import com.couponrush.member.dto.LoginRequest;
 import com.couponrush.member.dto.SignUpRequest;
@@ -34,6 +36,8 @@ class AuthServiceTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private JwtProvider jwtProvider;
+    @Mock
+    private TokenBlacklistRepository tokenBlacklistRepository;
     @InjectMocks
     private AuthService authService;
 
@@ -98,5 +102,31 @@ class AuthServiceTest {
 
         assertThat(response.accessToken()).isEqualTo("TOKEN");
         assertThat(response.tokenType()).isEqualTo("Bearer");
+    }
+
+    @Test
+    void 로그아웃_유효한토큰이면_잔여TTL로_블랙리스트에_등록한다() {
+        given(jwtProvider.validateToken("token")).willReturn(true);
+        given(jwtProvider.getRemainingMillis("token")).willReturn(5_000L);
+
+        authService.logout("Bearer token");
+
+        verify(tokenBlacklistRepository).blacklist("token", 5_000L);
+    }
+
+    @Test
+    void 로그아웃_무효한토큰이면_아무것도_하지_않는다() {
+        given(jwtProvider.validateToken("bad")).willReturn(false);
+
+        authService.logout("Bearer bad");
+
+        verify(tokenBlacklistRepository, never()).blacklist(anyString(), anyLong());
+    }
+
+    @Test
+    void 로그아웃_헤더가_없으면_아무것도_하지_않는다() {
+        authService.logout(null);
+
+        verify(tokenBlacklistRepository, never()).blacklist(anyString(), anyLong());
     }
 }

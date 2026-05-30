@@ -3,6 +3,7 @@ package com.couponrush.member.service;
 import com.couponrush.global.error.BusinessException;
 import com.couponrush.global.error.ErrorCode;
 import com.couponrush.global.jwt.JwtProvider;
+import com.couponrush.global.jwt.TokenBlacklistRepository;
 import com.couponrush.member.domain.Member;
 import com.couponrush.member.dto.LoginRequest;
 import com.couponrush.member.dto.SignUpRequest;
@@ -20,6 +21,9 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final TokenBlacklistRepository tokenBlacklistRepository;
+
+    private static final String BEARER_PREFIX = "Bearer ";
 
     @Transactional
     public void signUp(SignUpRequest request) {
@@ -43,5 +47,23 @@ public class AuthService {
         }
         String token = jwtProvider.createToken(member.getId(), member.getEmail());
         return TokenResponse.of(token);
+    }
+
+    public void logout(String authorizationHeader) {
+        String token = resolveToken(authorizationHeader);
+        if (token == null || !jwtProvider.validateToken(token)) {
+            return;
+        }
+        long remainingMillis = jwtProvider.getRemainingMillis(token);
+        if (remainingMillis > 0) {
+            tokenBlacklistRepository.blacklist(token, remainingMillis);
+        }
+    }
+
+    private String resolveToken(String authorizationHeader) {
+        if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
+            return authorizationHeader.substring(BEARER_PREFIX.length());
+        }
+        return null;
     }
 }

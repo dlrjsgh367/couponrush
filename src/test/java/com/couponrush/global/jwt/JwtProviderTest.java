@@ -46,4 +46,14 @@ class JwtProviderTest {
 
         assertThat(shortLived.validateToken(token)).isFalse();
     }
+
+    @Test
+    void 토큰의_잔여_만료시간을_반환한다() {
+        String token = jwtProvider.createToken(1L, "user@test.com");
+
+        long remaining = jwtProvider.getRemainingMillis(token);
+
+        assertThat(remaining).isPositive().isLessThanOrEqualTo(ONE_HOUR);
+        assertThat(remaining).isGreaterThan(ONE_HOUR - 5_000L);
+    }
 }

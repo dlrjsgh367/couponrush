@@ -19,6 +19,8 @@ class JwtAuthenticationFilterTest {
 
     @Mock
     private JwtProvider jwtProvider;
+    @Mock
+    private TokenBlacklistRepository tokenBlacklistRepository;
 
     @AfterEach
     void clear() {
@@ -33,7 +35,8 @@ class JwtAuthenticationFilterTest {
         request.addHeader("Authorization", "Bearer valid-token");
         MockFilterChain chain = new MockFilterChain();
 
-        new JwtAuthenticationFilter(jwtProvider).doFilter(request, new MockHttpServletResponse(), chain);
+        new JwtAuthenticationFilter(jwtProvider, tokenBlacklistRepository)
+                .doFilter(request, new MockHttpServletResponse(), chain);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         assertThat(auth).isNotNull();
@@ -46,7 +49,23 @@ class JwtAuthenticationFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockFilterChain chain = new MockFilterChain();
 
-        new JwtAuthenticationFilter(jwtProvider).doFilter(request, new MockHttpServletResponse(), chain);
+        new JwtAuthenticationFilter(jwtProvider, tokenBlacklistRepository)
+                .doFilter(request, new MockHttpServletResponse(), chain);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        assertThat(chain.getRequest()).isNotNull();
+    }
+
+    @Test
+    void 블랙리스트에_등록된_토큰이면_인증정보가_없다() throws Exception {
+        given(jwtProvider.validateToken("logged-out")).willReturn(true);
+        given(tokenBlacklistRepository.isBlacklisted("logged-out")).willReturn(true);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Bearer logged-out");
+        MockFilterChain chain = new MockFilterChain();
+
+        new JwtAuthenticationFilter(jwtProvider, tokenBlacklistRepository)
+                .doFilter(request, new MockHttpServletResponse(), chain);
 
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
         assertThat(chain.getRequest()).isNotNull();
@@ -59,7 +78,8 @@ class JwtAuthenticationFilterTest {
         request.addHeader("Authorization", "Bearer bad-token");
         MockFilterChain chain = new MockFilterChain();
 
-        new JwtAuthenticationFilter(jwtProvider).doFilter(request, new MockHttpServletResponse(), chain);
+        new JwtAuthenticationFilter(jwtProvider, tokenBlacklistRepository)
+                .doFilter(request, new MockHttpServletResponse(), chain);
 
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
         assertThat(chain.getRequest()).isNotNull();
