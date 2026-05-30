@@ -230,23 +230,23 @@ POST /api/coupons/{eventId}/issue
 
 ## 8. 작업 순서 (이 순서로 진행)
 
-1. Spring Boot 프로젝트 셋업 — 의존성: web, validation, data-jpa, data-redis,
-   kafka, security, lombok, mysql-connector, (querydsl 선택), actuator + micrometer-prometheus
-2. `application.yml` — datasource/redis/kafka/jpa(ddl-auto=validate) 설정
-3. global 공통 — BaseTimeEntity, JpaConfig, ApiResponse, ErrorCode/BusinessException/GlobalExceptionHandler
-4. 엔티티(위 5번) 배치 + Repository 3종
-5. 회원가입/로그인 — SecurityConfig(BCrypt), JwtProvider, JwtAuthenticationFilter, AuthService/Controller
-6. JWT 로그아웃 블랙리스트 (Redis, TTL=토큰 만료까지)
-7. 쿠폰 이벤트 조회 API + Redis 캐시
-8. CouponRedisRepository (ZADD/SISMEMBER/DECR/SADD 캡슐화) + CouponStockService(재고 적재)
-9. 선착순 발급 API (6번 흐름) — getReferenceById로 INSERT
-10. Kafka producer/consumer (수동 커밋)
-11. 내 쿠폰 조회 (fetch join)
-12. k6 부하테스트 시나리오 (개선 전/후 TPS·중복건수 비교)
-13. Prometheus + Grafana 연동 (actuator /prometheus 노출)
-14. GitHub Actions CI (빌드/테스트)
-15. OCI 배포
-16. README (아키텍처 다이어그램 + 부하테스트 수치 + 트러블슈팅)
+- [x] 1. Spring Boot 프로젝트 셋업 — 의존성: web, validation, data-jpa, data-redis,
+      kafka, security, lombok, mysql-connector, (querydsl 선택), actuator + micrometer-prometheus
+- [x] 2. `application.yml` — datasource/redis/kafka/jpa(ddl-auto=validate) 설정
+- [x] 3. global 공통 — BaseTimeEntity, JpaConfig, ApiResponse, ErrorCode/BusinessException/GlobalExceptionHandler
+- [x] 4. 엔티티(위 5번) 배치 + Repository 3종
+- [x] 5. 회원가입/로그인 — SecurityConfig(BCrypt), JwtProvider, JwtAuthenticationFilter, AuthService/Controller
+- [x] 6. JWT 로그아웃 블랙리스트 (Redis, TTL=토큰 만료까지)
+- [x] 7. 쿠폰 이벤트 조회 API + Redis 캐시
+- [ ] 8. CouponRedisRepository (ZADD/SISMEMBER/DECR/SADD 캡슐화) + CouponStockService(재고 적재)
+- [ ] 9. 선착순 발급 API (6번 흐름) — getReferenceById로 INSERT
+- [ ] 10. Kafka producer/consumer (수동 커밋)
+- [ ] 11. 내 쿠폰 조회 (fetch join)
+- [ ] 12. k6 부하테스트 시나리오 (개선 전/후 TPS·중복건수 비교)
+- [ ] 13. Prometheus + Grafana 연동 (actuator /prometheus 노출)
+- [ ] 14. GitHub Actions CI (빌드/테스트)
+- [ ] 15. OCI 배포
+- [ ] 16. README (아키텍처 다이어그램 + 부하테스트 수치 + 트러블슈팅)
 
 ## 9. 범위 밖 (구현 금지)
 
