@@ -193,6 +193,7 @@ URL 패턴: `/api/{domain}/...`, 공통 응답은 `ApiResponse`로 감싼다.
 - Type은 PascalCase, 비어있으면 안 됨. (개인 GitHub 포트폴리오라 JIRA-ID 없음)
 - subject는 한국어 50자 이내, 마침표/느낌표로 끝내지 않음.
 - Merge / Revert / Rebase / Tag 류는 위 규칙 예외.
+- 커밋 메시지에 `Co-Authored-By: Claude ...` 라인을 절대 포함하지 말 것 (어떤 형태의 AI 공동작성자 트레일러도 금지).
 
 | Type | 사용 상황 |
 |------|-----------|
