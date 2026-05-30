@@ -1,0 +1,62 @@
+# ===== Build output =====
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+.gradle/
+bin/
+out/
+generated/
+generated-sources/
+
+# Gradle wrapper: jar는 커밋(빌드 재현성), 나머지 캐시는 제외
+!gradle/wrapper/gradle-wrapper.jar
+
+# ===== IDE =====
+# IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+# Eclipse / STS
+.classpath
+.project
+.settings/
+.apt_generated/
+.factorypath
+# VS Code
+.vscode/
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# ===== Secrets / local config (절대 커밋 금지) =====
+.env
+.env.*
+**/application-local.yml
+**/application-local.yaml
+**/application-secret.yml
+**/application-secret.yaml
+**/application-*-local.yml
+*.pem
+*.key
+*.p12
+*.keystore
+
+# ===== Logs / runtime =====
+*.log
+logs/
+*.pid
+*.hprof
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Misc =====
+# k6 결과 덤프 등 부하테스트 산출물
+loadtest/results/
+*.tmp
