@@ -80,6 +80,11 @@ CSRF 보호 끄기. JWT를 헤더에 직접 담는 방식이라 쿠키 기반 CS
 URL별 접근 규칙. **위에서부터 처음 맞는 규칙 하나만 적용되고 멈춘다.** 그래서 구체적인 규칙을 먼저, 포괄 규칙(anyRequest)을 맨 마지막에 둔다. anyRequest를 위로 올리면 회원가입조차 토큰을 요구하게 된다.
 
 ```java
+.exceptionHandling(handler -> handler.authenticationEntryPoint(new JwtAuthenticationEntryPoint(objectMapper)))
+```
+인가 단계에서 거부된 익명 요청을 어떻게 응답할지 지정한다. `formLogin`/`httpBasic`을 다 꺼서 기본 fallback이 403을 주므로, API 의미에 맞는 **401**과 공통 본문 `ApiResponse.error(UNAUTHORIZED)`(`C003`)를 돌려주도록 `JwtAuthenticationEntryPoint`를 명시한다.
+
+```java
 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider),
         UsernamePasswordAuthenticationFilter.class);
 ```

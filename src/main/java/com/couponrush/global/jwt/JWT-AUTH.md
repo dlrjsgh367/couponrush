@@ -87,7 +87,13 @@ if (token != null
 
 즉 "익명 = 무조건 401"이 아니다. 보호된 엔드포인트일 때만 거부된다.
 
-> 주의: 거부 시 실제 응답 코드가 401인지 403인지는 아직 검증하지 않았다. 현재 설정은 `formLogin`/`httpBasic`을 모두 껐고 별도 `AuthenticationEntryPoint`를 지정하지 않아 Spring Security 기본 fallback이 403을 줄 가능성이 있다. API 의미상 401이 맞으므로, 추후 401 반환 entry point를 명시하고 이 문구를 사실에 맞게 갱신할 것. (미확정)
+### 거부 응답 코드: 401
+
+인증되지 않은(익명) 요청이 보호된 엔드포인트를 치면 `JwtAuthenticationEntryPoint`가 **401 Unauthorized**를 돌려준다. 본문은 공통 포맷 `ApiResponse.error(UNAUTHORIZED)`(코드 `C003`, "인증이 필요합니다")다.
+
+`formLogin`/`httpBasic`을 모두 껐기 때문에, entry point를 지정하지 않으면 Spring Security 기본 fallback이 403을 준다. API 의미상 "인증이 없거나 유효하지 않음"은 401이 맞으므로 `SecurityConfig`의 `exceptionHandling`에 401 entry point를 명시해 이를 바로잡았다.
+
+권한 부족(403, `AccessDeniedHandler`)은 현재 MVP에 role 구분이 없어 발생하지 않으므로 별도로 두지 않았다.
 
 ## 발급부터 로그아웃까지 전체 생애주기
 
