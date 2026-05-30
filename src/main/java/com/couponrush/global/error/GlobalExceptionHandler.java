@@ -22,13 +22,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException e) {
         log.warn("Validation failed: {}", e.getMessage());
         return ResponseEntity.status(ErrorCode.INVALID_INPUT.getStatus())
-                .body(ApiResponse.error(ErrorCode.INVALID_INPUT));
+            .body(ApiResponse.error(ErrorCode.INVALID_INPUT));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         log.error("Unhandled exception", e);
         return ResponseEntity.status(ErrorCode.INTERNAL_ERROR.getStatus())
-                .body(ApiResponse.error(ErrorCode.INTERNAL_ERROR));
+            .body(ApiResponse.error(ErrorCode.INTERNAL_ERROR));
     }
 }

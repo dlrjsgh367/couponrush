@@ -16,15 +16,14 @@ public class CouponEventService {
     private final CouponEventCacheRepository couponEventCacheRepository;
 
     public List<CouponEventResponse> getIssuableEvents() {
-        return couponEventCacheRepository.get()
-                .orElseGet(this::loadFromDbAndCache);
+        return couponEventCacheRepository.get().orElseGet(this::loadFromDbAndCache);
     }
 
     private List<CouponEventResponse> loadFromDbAndCache() {
         List<CouponEventResponse> events = couponEventRepository.findIssuableEvents(LocalDateTime.now())
-                .stream()
-                .map(CouponEventResponse::from)
-                .toList();
+            .stream()
+            .map(CouponEventResponse::from)
+            .toList();
         couponEventCacheRepository.set(events);
         return events;
     }

@@ -1,5 +1,6 @@
 package com.couponrush.global.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -16,7 +17,7 @@ public class JwtProvider {
     private final long expirationMillis;
 
     public JwtProvider(@Value("${jwt.secret}") String secret,
-                       @Value("${jwt.expiration}") long expirationMillis) {
+        @Value("${jwt.expiration}") long expirationMillis) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMillis = expirationMillis;
     }
@@ -25,12 +26,12 @@ public class JwtProvider {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationMillis);
         return Jwts.builder()
-                .subject(String.valueOf(memberId))
-                .claim("email", email)
-                .issuedAt(now)
-                .expiration(expiration)
-                .signWith(key)
-                .compact();
+            .subject(String.valueOf(memberId))
+            .claim("email", email)
+            .issuedAt(now)
+            .expiration(expiration)
+            .signWith(key)
+            .compact();
     }
 
     public boolean validateToken(String token) {
@@ -51,11 +52,11 @@ public class JwtProvider {
         return expiration.getTime() - System.currentTimeMillis();
     }
 
-    private io.jsonwebtoken.Claims parseClaims(String token) {
+    private Claims parseClaims(String token) {
         return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+            .verifyWith(key)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
     }
 }
