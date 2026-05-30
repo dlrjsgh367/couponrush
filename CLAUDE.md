@@ -152,13 +152,21 @@ URL 패턴: `/api/{domain}/...`, 공통 응답은 `ApiResponse`로 감싼다.
 
 ## Code Quality Standards
 
-- 들여쓰기 4칸(스페이스), K&R braces, 줄 길이 150자.
+- 들여쓰기 4칸(스페이스), **연속 들여쓰기(continuation indent)도 4칸**(8칸 금지), K&R braces, 줄 길이 150자.
+- 줄바꿈 규칙: 150자 안에 들면 메서드 체이닝/인자를 불필요하게 줄바꿈하지 않는다. 줄바꿈할 때는 기준선에서 4칸 들여쓰고, 여러 줄 파라미터/레코드 컴포넌트는 닫는 괄호 `)`를 다음 줄 첫 칸(기준선)에 둔다.
 - 패키지는 도메인 우선. 회사 prefix 금지, MVP 범위 밖 컬럼(status 류 등) 추가 금지.
 - 네이밍: snake_case 컬럼, 테이블 복수형, 엔티티 단수. 제약조건 접두사 `pk_/fk_/uk_/idx_`. `@Table(name=...)` 명시.
 - 연관관계: 객체 참조 + `@ManyToOne(fetch = LAZY)`. 읽기 경로 N+1 회피는 fetch join 또는 QueryDSL projection.
 - Lombok 사용. 엔티티 기본생성자 `@NoArgsConstructor(access = PROTECTED)`, 생성은 `@Builder`.
 
 > 검증/커밋/범위/Protected 규율은 상단 [Hard Rules](#hard-rules) 참조.
+
+## Documentation Convention
+
+- mermaid 차트로 설명 가능한 개념(흐름, 의존 관계, 상태 전이, 생애주기 등)은 채팅 산문으로만 남기지 말고 별도 `.md` 문서를 만들어 그 안에 ` ```mermaid ` 코드 블록으로 저장한다.
+- 문서는 설명 대상 코드 옆에 같은 이름으로 둔다. (예: `global/config/SecurityConfig.md`, `global/jwt/JWT-AUTH.md`)
+- 렌더링한 이미지(SVG/PNG)가 아니라 ` ```mermaid ` 코드 블록 원문 그대로 저장한다. GitHub/IDE가 알아서 렌더링한다.
+- 문서 추가/수정 커밋 타입은 `Docs`.
 
 <!-- ===== 중: Serena 행동 강령 ===== -->
 
