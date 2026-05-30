@@ -6,10 +6,10 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root1234
-      MYSQL_DATABASE: couponrush
-      MYSQL_USER: coupon
-      MYSQL_PASSWORD: coupon1234
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root1234}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-couponrush}
+      MYSQL_USER: ${MYSQL_USER:-coupon}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-coupon1234}
       TZ: Asia/Seoul
     command:
       - --character-set-server=utf8mb4
@@ -17,7 +17,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot1234"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root1234}"]
       interval: 10s
       timeout: 5s
       retries: 5
