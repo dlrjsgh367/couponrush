@@ -90,6 +90,8 @@ CREATE TABLE issued_coupons (
     event_id    BIGINT   NOT NULL                             COMMENT '쿠폰 이벤트 FK',
     member_id   BIGINT   NOT NULL                             COMMENT '발급받은 회원 FK',
     issued_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP   COMMENT '발급 일시',
+    created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP   COMMENT '생성 일시',
+    updated_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정 일시',
     CONSTRAINT pk_issued_coupons PRIMARY KEY (id),
     CONSTRAINT fk_issued_coupons_event  FOREIGN KEY (event_id)  REFERENCES coupon_events(id),
     CONSTRAINT fk_issued_coupons_member FOREIGN KEY (member_id) REFERENCES members(id),
