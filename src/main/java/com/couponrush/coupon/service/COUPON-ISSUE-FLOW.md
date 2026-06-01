@@ -18,7 +18,7 @@ flowchart TD
     F --> G["IssuedCoupon 빌드 (getReferenceById)"]
     G --> H["saveAndFlush"]
     H --> I{"INSERT 결과"}
-    I -->|성공| J["200 응답 (Kafka는 10번)"]
+    I -->|성공| J["CouponProducer produce"] --> J2["200 응답 (consume은 비동기)"]
     I -->|uk 위반| K1["INCR 보상"] --> K2["ALREADY_ISSUED 409"]
     I -->|그 외 예외| L1["INCR + SREM 보상"] --> L2["예외 전파 500"]
 ```
@@ -31,7 +31,7 @@ flowchart TD
 - `saveAndFlush`를 쓰는 이유: `save`만 하면 uk 위반이 트랜잭션 커밋 시점에 터져 메서드 안에서 잡을 수 없다. flush로 즉시 표면화시켜 보상 분기를 탄다.
 - uk 위반(동시 중복 레이스): 재고만 `INCR` 복구하고 발급자 Set은 유지한다(실제로 발급된 상태라서). `ALREADY_ISSUED 409`.
 - 그 외 INSERT 실패: 재고 `INCR` + 발급자 `SREM`까지 되돌려 재시도를 허용하고 예외를 전파한다.
-- DB INSERT 성공 후에 Kafka produce(10번 작업). 역순 금지.
+- DB INSERT 성공 후에 Kafka produce. 역순 금지. produce 실패는 로그만 남기고 트랜잭션을 깨지 않는다. 자세한 흐름은 [`../kafka/COUPON-KAFKA-FLOW.md`](../kafka/COUPON-KAFKA-FLOW.md).
 
 ## MVP 한계 (README 개선안 후보)
 

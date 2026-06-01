@@ -1,6 +1,8 @@
 package com.couponrush.coupon.service;
 
 import com.couponrush.coupon.domain.IssuedCoupon;
+import com.couponrush.coupon.kafka.CouponProducer;
+import com.couponrush.coupon.kafka.dto.CouponIssuedEvent;
 import com.couponrush.coupon.redis.CouponRedisRepository;
 import com.couponrush.coupon.repository.CouponEventRepository;
 import com.couponrush.coupon.repository.IssuedCouponRepository;
@@ -21,9 +23,11 @@ public class CouponIssueService {
     private final IssuedCouponRepository issuedCouponRepository;
     private final CouponEventRepository couponEventRepository;
     private final MemberRepository memberRepository;
+    private final CouponProducer couponProducer;
 
     @Transactional
     public void issue(Long eventId, Long memberId) {
+        LocalDateTime issuedAt = LocalDateTime.now();
         couponRedisRepository.addToQueue(eventId, memberId, System.currentTimeMillis());
 
         if (couponRedisRepository.isIssued(eventId, memberId)) {
@@ -42,7 +46,7 @@ public class CouponIssueService {
             IssuedCoupon coupon = IssuedCoupon.builder()
                     .event(couponEventRepository.getReferenceById(eventId))
                     .member(memberRepository.getReferenceById(memberId))
-                    .issuedAt(LocalDateTime.now())
+                    .issuedAt(issuedAt)
                     .build();
             issuedCouponRepository.saveAndFlush(coupon);
         } catch (DataIntegrityViolationException e) {
@@ -53,6 +57,6 @@ public class CouponIssueService {
             couponRedisRepository.removeIssued(eventId, memberId);
             throw e;
         }
-        // Kafka produce (topic=coupon-issued, key=memberId): 10번 작업에서 이 위치에 추가
+        couponProducer.produce(new CouponIssuedEvent(eventId, memberId, issuedAt));
     }
 }

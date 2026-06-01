@@ -10,6 +10,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.couponrush.coupon.domain.IssuedCoupon;
+import com.couponrush.coupon.kafka.CouponProducer;
+import com.couponrush.coupon.kafka.dto.CouponIssuedEvent;
 import com.couponrush.coupon.redis.CouponRedisRepository;
 import com.couponrush.coupon.repository.CouponEventRepository;
 import com.couponrush.coupon.repository.IssuedCouponRepository;
@@ -37,6 +39,8 @@ class CouponIssueServiceTest {
     private CouponEventRepository couponEventRepository;
     @Mock
     private MemberRepository memberRepository;
+    @Mock
+    private CouponProducer couponProducer;
     @InjectMocks
     private CouponIssueService couponIssueService;
 
@@ -50,6 +54,7 @@ class CouponIssueServiceTest {
         verify(couponRedisRepository).addToQueue(eq(EVENT_ID), eq(MEMBER_ID), anyLong());
         verify(couponRedisRepository).addIssued(EVENT_ID, MEMBER_ID);
         verify(issuedCouponRepository).saveAndFlush(any(IssuedCoupon.class));
+        verify(couponProducer).produce(any(CouponIssuedEvent.class));
         verify(couponRedisRepository, never()).increaseStock(EVENT_ID);
         verify(couponRedisRepository, never()).removeIssued(EVENT_ID, MEMBER_ID);
     }
@@ -65,6 +70,7 @@ class CouponIssueServiceTest {
 
         verify(couponRedisRepository, never()).decreaseStock(EVENT_ID);
         verify(issuedCouponRepository, never()).saveAndFlush(any());
+        verify(couponProducer, never()).produce(any(CouponIssuedEvent.class));
     }
 
     @Test
@@ -80,6 +86,7 @@ class CouponIssueServiceTest {
         verify(couponRedisRepository).increaseStock(EVENT_ID);
         verify(couponRedisRepository, never()).addIssued(EVENT_ID, MEMBER_ID);
         verify(issuedCouponRepository, never()).saveAndFlush(any());
+        verify(couponProducer, never()).produce(any(CouponIssuedEvent.class));
     }
 
     @Test
@@ -96,6 +103,7 @@ class CouponIssueServiceTest {
 
         verify(couponRedisRepository).increaseStock(EVENT_ID);
         verify(couponRedisRepository, never()).removeIssued(EVENT_ID, MEMBER_ID);
+        verify(couponProducer, never()).produce(any(CouponIssuedEvent.class));
     }
 
     @Test
@@ -110,5 +118,6 @@ class CouponIssueServiceTest {
 
         verify(couponRedisRepository).increaseStock(EVENT_ID);
         verify(couponRedisRepository).removeIssued(EVENT_ID, MEMBER_ID);
+        verify(couponProducer, never()).produce(any(CouponIssuedEvent.class));
     }
 }
