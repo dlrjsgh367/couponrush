@@ -239,7 +239,7 @@ POST /api/coupons/{eventId}/issue
 - [x] 6. JWT 로그아웃 블랙리스트 (Redis, TTL=토큰 만료까지)
 - [x] 7. 쿠폰 이벤트 조회 API + Redis 캐시
 - [x] 8. CouponRedisRepository (ZADD/SISMEMBER/DECR/SADD 캡슐화) + CouponStockService(재고 적재)
-- [ ] 9. 선착순 발급 API (6번 흐름) — getReferenceById로 INSERT
+- [x] 9. 선착순 발급 API (6번 흐름) — getReferenceById로 INSERT
 - [ ] 10. Kafka producer/consumer (수동 커밋)
 - [ ] 11. 내 쿠폰 조회 (fetch join)
 - [ ] 12. k6 부하테스트 시나리오 (개선 전/후 TPS·중복건수 비교)
