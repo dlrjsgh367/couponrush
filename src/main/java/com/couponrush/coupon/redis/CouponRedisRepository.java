@@ -26,8 +26,16 @@ public class CouponRedisRepository {
         return redisTemplate.opsForValue().decrement(STOCK_KEY + eventId);
     }
 
+    public long increaseStock(Long eventId) {
+        return redisTemplate.opsForValue().increment(STOCK_KEY + eventId);
+    }
+
     public void addIssued(Long eventId, Long memberId) {
         redisTemplate.opsForSet().add(ISSUED_KEY + eventId, String.valueOf(memberId));
+    }
+
+    public void removeIssued(Long eventId, Long memberId) {
+        redisTemplate.opsForSet().remove(ISSUED_KEY + eventId, String.valueOf(memberId));
     }
 
     public void setStock(Long eventId, int stock) {

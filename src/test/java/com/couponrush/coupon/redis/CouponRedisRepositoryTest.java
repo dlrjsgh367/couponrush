@@ -33,11 +33,27 @@ class CouponRedisRepositoryTest {
     }
 
     @Test
+    void 차감한_재고를_다시_증가시키면_원복된다() {
+        repository.setStock(1L, 1);
+        repository.decreaseStock(1L);
+
+        assertThat(repository.increaseStock(1L)).isEqualTo(1L);
+    }
+
+    @Test
     void 발급자를_등록하면_isIssued가_참이되고_미등록은_거짓이다() {
         repository.addIssued(1L, 100L);
 
         assertThat(repository.isIssued(1L, 100L)).isTrue();
         assertThat(repository.isIssued(1L, 200L)).isFalse();
+    }
+
+    @Test
+    void 발급자를_제거하면_isIssued가_다시_거짓이된다() {
+        repository.addIssued(1L, 100L);
+        repository.removeIssued(1L, 100L);
+
+        assertThat(repository.isIssued(1L, 100L)).isFalse();
     }
 
     @Test
