@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+
+scrape_configs:
+  # Spring Boot 앱은 도커 밖(호스트/IDE)에서 실행하므로 host-gateway로 접근한다.
+  - job_name: couponrush-app
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8080"]
+        labels:
+          application: couponrush
+
+  # Prometheus 자기 자신
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

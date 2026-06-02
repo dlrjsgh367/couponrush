@@ -243,7 +243,7 @@ POST /api/coupons/{eventId}/issue
 - [x] 10. Kafka producer/consumer (수동 커밋)
 - [x] 11. 내 쿠폰 조회 (fetch join)
 - [x] 12. k6 부하테스트 시나리오 (개선 전/후 TPS·중복건수 비교)
-- [ ] 13. Prometheus + Grafana 연동 (actuator /prometheus 노출)
+- [x] 13. Prometheus + Grafana 연동 (actuator /prometheus 노출)
 - [ ] 14. GitHub Actions CI (빌드/테스트)
 - [ ] 15. OCI 배포
 - [ ] 16. README (아키텍처 다이어그램 + 부하테스트 수치 + 트러블슈팅)
