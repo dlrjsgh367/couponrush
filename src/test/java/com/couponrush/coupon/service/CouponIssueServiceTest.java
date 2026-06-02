@@ -1,5 +1,6 @@
 package com.couponrush.coupon.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,7 +10,9 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import com.couponrush.coupon.domain.CouponEvent;
 import com.couponrush.coupon.domain.IssuedCoupon;
+import com.couponrush.coupon.dto.MyCouponResponse;
 import com.couponrush.coupon.kafka.CouponProducer;
 import com.couponrush.coupon.kafka.dto.CouponIssuedEvent;
 import com.couponrush.coupon.redis.CouponRedisRepository;
@@ -18,6 +21,8 @@ import com.couponrush.coupon.repository.IssuedCouponRepository;
 import com.couponrush.global.error.BusinessException;
 import com.couponrush.global.error.ErrorCode;
 import com.couponrush.member.repository.MemberRepository;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -119,5 +124,29 @@ class CouponIssueServiceTest {
         verify(couponRedisRepository).increaseStock(EVENT_ID);
         verify(couponRedisRepository).removeIssued(EVENT_ID, MEMBER_ID);
         verify(couponProducer, never()).produce(any(CouponIssuedEvent.class));
+    }
+
+    @Test
+    void 내_쿠폰을_조회하면_이벤트정보를_매핑해_반환한다() {
+        CouponEvent event = CouponEvent.builder()
+                .name("3천원 할인")
+                .totalStock(100_000)
+                .discount(3_000)
+                .startAt(LocalDateTime.of(2026, 6, 1, 0, 0))
+                .endAt(LocalDateTime.of(2026, 6, 30, 0, 0))
+                .build();
+        IssuedCoupon coupon = IssuedCoupon.builder()
+                .event(event)
+                .issuedAt(LocalDateTime.of(2026, 6, 2, 10, 0))
+                .build();
+        given(issuedCouponRepository.findByMemberIdWithEvent(MEMBER_ID)).willReturn(List.of(coupon));
+
+        List<MyCouponResponse> result = couponIssueService.getMyCoupons(MEMBER_ID);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).eventName()).isEqualTo("3천원 할인");
+        assertThat(result.get(0).discount()).isEqualTo(3_000);
+        assertThat(result.get(0).endAt()).isEqualTo(LocalDateTime.of(2026, 6, 30, 0, 0));
+        assertThat(result.get(0).issuedAt()).isEqualTo(LocalDateTime.of(2026, 6, 2, 10, 0));
     }
 }

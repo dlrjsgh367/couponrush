@@ -1,12 +1,17 @@
 package com.couponrush.coupon.controller;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.couponrush.coupon.dto.MyCouponResponse;
 import com.couponrush.coupon.service.CouponIssueService;
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,5 +45,21 @@ class CouponIssueControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
         verify(couponIssueService).issue(1L, 100L);
+    }
+
+    @Test
+    void 내_쿠폰_조회시_200과_인증회원의_목록을_반환한다() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(100L, null, Collections.emptyList()));
+        given(couponIssueService.getMyCoupons(100L)).willReturn(List.of(
+                new MyCouponResponse(10L, 1L, "3천원 할인", 3_000,
+                        LocalDateTime.of(2026, 6, 30, 0, 0), LocalDateTime.of(2026, 6, 2, 10, 0))));
+
+        mockMvc.perform(get("/api/coupons/my"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data[0].eventName").value("3천원 할인"))
+                .andExpect(jsonPath("$.data[0].discount").value(3_000));
+        verify(couponIssueService).getMyCoupons(100L);
     }
 }

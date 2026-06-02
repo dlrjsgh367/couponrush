@@ -1,6 +1,7 @@
 package com.couponrush.coupon.service;
 
 import com.couponrush.coupon.domain.IssuedCoupon;
+import com.couponrush.coupon.dto.MyCouponResponse;
 import com.couponrush.coupon.kafka.CouponProducer;
 import com.couponrush.coupon.kafka.dto.CouponIssuedEvent;
 import com.couponrush.coupon.redis.CouponRedisRepository;
@@ -10,6 +11,7 @@ import com.couponrush.global.error.BusinessException;
 import com.couponrush.global.error.ErrorCode;
 import com.couponrush.member.repository.MemberRepository;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -58,5 +60,12 @@ public class CouponIssueService {
             throw e;
         }
         couponProducer.produce(new CouponIssuedEvent(eventId, memberId, issuedAt));
+    }
+
+    @Transactional(readOnly = true)
+    public List<MyCouponResponse> getMyCoupons(Long memberId) {
+        return issuedCouponRepository.findByMemberIdWithEvent(memberId).stream()
+                .map(MyCouponResponse::from)
+                .toList();
     }
 }
